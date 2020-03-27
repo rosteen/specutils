@@ -1,10 +1,12 @@
 import logging
 from copy import deepcopy
+import warnings
 
 import astropy.units.equivalencies as eq
 import numpy as np
 from astropy import units as u
-from astropy.utils.decorators import lazyproperty
+from astropy.utils.decorators import lazyproperty, deprecated_attribute
+from astropy.utils.exceptions import AstropyDeprecationWarning
 from astropy.wcs.wcsapi import HighLevelWCSWrapper
 
 from specutils.utils.wcs_utils import gwcs_from_array
@@ -125,20 +127,45 @@ class OneDSpectrumMixin:
     @property
     def velocity_convention(self):
         """
-        Returns the velocity convention
+        Returns the doppler convention
+        """
+        warnings.warn('Spectrum1D parameter "velocity_convention" was deprecated'
+                ' in version 1.1. and will be removed in a future version. Use '
+                '"doppler_convention" instead',
+                AstropyDeprecationWarning)
+        return self.spectral_axis.doppler_convention
+
+    @property
+    def doppler_convention(self):
+        """
+        Returns the doppler convention
         """
         return self.spectral_axis.doppler_convention
 
-    def with_velocity_convention(self, velocity_convention):
+    def with_velocity_convention(self, doppler_convention):
+        warnings.warn('"Spectrum1D.with_velocity_convention" was deprecated in'
+                ' version 1.1 and will be removed in a future version. Use '
+                'method "with_doppler_convention" instead.',
+                AstropyDeprecationWarning)
+        return self.with_doppler_convention(doppler_convention)
+
+    def with_doppler_convention(self, doppler_convention):
         return self.__class__(flux=self.flux, wcs=self.wcs, meta=self.meta,
-                              velocity_convention=velocity_convention)
+                              doppler_convention=doppler_convention)
 
     @property
     def rest_value(self):
+        warnings.warn('Spectrum1D parameter "rest_value" was deprecated in '
+                'version 1.1 and will be removed in a future version. '
+                'Use "doppler_rest" instead.', AstropyDeprecationWarning)
         return self.spectral_axis.doppler_rest
 
-    @rest_value.setter
-    def rest_value(self, value):
+    @property
+    def doppler_rest(self):
+        return self.spectral_axis.doppler_rest
+
+    @doppler_rest.setter
+    def doppler_rest(self, value):
         self.spectral_axis.doppler_rest = value
 
     @property
@@ -167,15 +194,15 @@ class OneDSpectrumMixin:
         ~`astropy.units.Quantity`
             The converted dispersion array in the new dispersion space.
         """
-        if self.rest_value is None:
+        if self.doppler_rest is None:
             raise ValueError("Cannot get velocity representation of spectral "
                              "axis without specifying a reference value.")
-        if self.velocity_convention is None:
+        if self.doppler_convention is None:
             raise ValueError("Cannot get velocity representation of spectral "
                              "axis without specifying a velocity convention.")
 
         equiv = getattr(u.equivalencies, 'doppler_{0}'.format(
-            self.velocity_convention))(self.rest_value)
+            self.doppler_convention))(self.doppler_rest)
 
         new_data = self.spectral_axis.to(u.km/u.s, equivalencies=equiv)
 
@@ -185,8 +212,8 @@ class OneDSpectrumMixin:
 
         return new_data
 
-    def with_spectral_unit(self, unit, velocity_convention=None,
-                           rest_value=None):
+    def with_spectral_unit(self, unit, doppler_convention=None,
+                           doppler_rest=None):
         """
         Returns a new spectrum with a different spectral axis unit.
 
@@ -195,11 +222,11 @@ class OneDSpectrumMixin:
         unit : :class:`~astropy.units.Unit`
             Any valid spectral unit: velocity, (wave)length, or frequency.
             Only vacuum units are supported.
-        velocity_convention : 'relativistic', 'radio', or 'optical'
+        doppler_convention : 'relativistic', 'radio', or 'optical'
             The velocity convention to use for the output velocity axis.
             Required if the output type is velocity. This can be either one
             of the above strings, or an `astropy.units` equivalency.
-        rest_value : :class:`~astropy.units.Quantity`
+        doppler_rest : :class:`~astropy.units.Quantity`
             A rest wavelength or frequency with appropriate units.  Required if
             output type is velocity.  The spectrum's WCS should include this
             already if the *input* type is velocity, but the WCS's rest
@@ -211,15 +238,15 @@ class OneDSpectrumMixin:
         """
         new_wcs, new_meta = self._new_spectral_wcs(
             unit=unit,
-            velocity_convention=velocity_convention or self.velocity_convention,
-            rest_value=rest_value or self.rest_value)
+            doppler_convention=doppler_convention or self.doppler_convention,
+            doppler_rest=doppler_rest or self.doppler_rest)
 
         spectrum = self.__class__(flux=self.flux, wcs=new_wcs, meta=new_meta)
 
         return spectrum
 
-    def _new_wcs_argument_validation(self, unit, velocity_convention,
-                                     rest_value):
+    def _new_wcs_argument_validation(self, unit, doppler_convention,
+                                     doppler_rest):
         # Allow string specification of units, for example
         if not isinstance(unit, u.UnitBase):
             unit = u.Unit(unit)
@@ -227,24 +254,24 @@ class OneDSpectrumMixin:
         # Velocity conventions: required for frq <-> velo
         # convert_spectral_axis will handle the case of no velocity
         # convention specified & one is required
-        if velocity_convention in DOPPLER_CONVENTIONS:
-            velocity_convention = DOPPLER_CONVENTIONS[velocity_convention]
-        elif (velocity_convention is not None and
-              velocity_convention not in DOPPLER_CONVENTIONS.values()):
-            raise ValueError("Velocity convention must be radio, optical, "
+        if doppler_convention in DOPPLER_CONVENTIONS:
+            doppler_convention = DOPPLER_CONVENTIONS[doppler_convention]
+        elif (doppler_convention is not None and
+              doppler_convention not in DOPPLER_CONVENTIONS.values()):
+            raise ValueError("Doppler convention must be radio, optical, "
                              "or relativistic.")
 
         # If rest value is specified, it must be a quantity
-        if (rest_value is not None and
-            (not hasattr(rest_value, 'unit') or
-             not rest_value.unit.is_equivalent(u.m, u.spectral()))):
+        if (doppler_rest is not None and
+            (not hasattr(doppler_rest, 'unit') or
+             not doppler_rest.unit.is_equivalent(u.m, u.spectral()))):
             raise ValueError("Rest value must be specified as an astropy "
                              "quantity with spectral equivalence.")
 
         return unit
 
-    def _new_spectral_wcs(self, unit, velocity_convention=None,
-                          rest_value=None):
+    def _new_spectral_wcs(self, unit, doppler_convention=None,
+                          doppler_rest=None):
         """
         Returns a new WCS with a different Spectral Axis unit.
 
@@ -253,11 +280,11 @@ class OneDSpectrumMixin:
         unit : :class:`~astropy.units.Unit`
             Any valid spectral unit: velocity, (wave)length, or frequency.
             Only vacuum units are supported.
-        velocity_convention : 'relativistic', 'radio', or 'optical'
+        doppler_convention : 'relativistic', 'radio', or 'optical'
             The velocity convention to use for the output velocity axis.
             Required if the output type is velocity. This can be either one
             of the above strings, or an `astropy.units` equivalency.
-        rest_value : :class:`~astropy.units.Quantity`
+        doppler_rest : :class:`~astropy.units.Quantity`
             A rest wavelength or frequency with appropriate units.  Required if
             output type is velocity.  The cube's WCS should include this
             already if the *input* type is velocity, but the WCS's rest
@@ -267,12 +294,12 @@ class OneDSpectrumMixin:
                      even if your cube has air wavelength units
         """
 
-        unit = self._new_wcs_argument_validation(unit, velocity_convention,
-                                                 rest_value)
+        unit = self._new_wcs_argument_validation(unit, doppler_convention,
+                                                 doppler_rest)
 
-        if velocity_convention is not None:
-            equiv = getattr(u, 'doppler_{0}'.format(velocity_convention))
-            rest_value.to(unit, equivalencies=equiv)
+        if doppler_convention is not None:
+            equiv = getattr(u, 'doppler_{0}'.format(doppler_convention))
+            doppler_rest.to(unit, equivalencies=equiv)
 
         # Store the original unit information for posterity
         meta = self._meta.copy()
