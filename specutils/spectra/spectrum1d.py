@@ -5,7 +5,7 @@ import numpy as np
 from astropy import units as u
 from astropy import constants as cnst
 from astropy.nddata import NDDataRef
-from astropy.utils.decorators import lazyproperty
+from astropy.utils.decorators import lazyproperty, deprecated_renamed_argument
 from .spectrum_mixin import OneDSpectrumMixin
 from .spectral_coordinate import SpectralCoord
 from ..utils.wcs_utils import gwcs_from_array
@@ -30,9 +30,9 @@ class Spectrum1D(OneDSpectrumMixin, NDDataRef):
         dimension of flux.
     wcs : `astropy.wcs.WCS` or `gwcs.wcs.WCS`
         WCS information object.
-    velocity_convention : {"doppler_relativistic", "doppler_optical", "doppler_radio"}
+    doppler_convention : {"doppler_relativistic", "doppler_optical", "doppler_radio"}
         Convention used for velocity conversions.
-    rest_value : `~astropy.units.Quantity`
+    doppler_rest : `~astropy.units.Quantity`
         Any quantity supported by the standard spectral equivalencies
         (wavelength, energy, frequency, wave number). Describes the rest value
         of the spectral axis for use with velocity conversions.
@@ -48,8 +48,12 @@ class Spectrum1D(OneDSpectrumMixin, NDDataRef):
         Arbitrary container for any user-specific information to be carried
         around with the spectrum container object.
     """
+    @deprecated_renamed_argument('velocity_convention', 'doppler_convention',
+                                 1.1, arg_in_kwargs = True)
+    @deprecated_renamed_argument('rest_value', 'doppler_rest', 1.1,
+                                 arg_in_kwargs = True)
     def __init__(self, flux=None, spectral_axis=None, wcs=None,
-                 velocity_convention=None, rest_value=None, redshift=None,
+                 doppler_convention=None, doppler_rest=None, redshift=None,
                  radial_velocity=None, **kwargs):
         # Check for pre-defined entries in the kwargs dictionary.
         unknown_kwargs = set(kwargs).difference(
@@ -96,21 +100,21 @@ class Spectrum1D(OneDSpectrumMixin, NDDataRef):
             super(Spectrum1D, self).__init__(data=flux, wcs=wcs, **kwargs)
             return
 
-        if rest_value is None:
+        if doppler_rest is None:
             if hasattr(wcs, 'rest_frequency') and wcs.rest_frequency != 0:
-                rest_value = wcs.rest_frequency * u.Hz
+                doppler_rest = wcs.rest_frequency * u.Hz
             elif hasattr(wcs, 'rest_wavelength') and wcs.rest_wavelength != 0:
-                rest_value = wcs.rest_wavelength * u.AA
+                doppler_rest = wcs.rest_wavelength * u.AA
             else:
-                rest_value = 0 * u.AA
+                doppler_rest = 0 * u.AA
         else:
-            if not isinstance(rest_value, u.Quantity):
+            if not isinstance(doppler_rest, u.Quantity):
                 logging.info("No unit information provided with rest value. "
                              "Assuming units of spectral axis ('%s').",
                              spectral_axis.unit)
-                rest_value = u.Quantity(rest_value, spectral_axis.unit)
-            elif not rest_value.unit.is_equivalent(u.AA) \
-                    and not rest_value.unit.is_equivalent(u.Hz):
+                doppler_rest = u.Quantity(doppler_rest, spectral_axis.unit)
+            elif not doppler_rest.unit.is_equivalent(u.AA) \
+                    and not doppler_rest.unit.is_equivalent(u.Hz):
                 raise u.UnitsError("Rest value must be "
                                    "energy/wavelength/frequency equivalent.")
 
@@ -128,8 +132,8 @@ class Spectrum1D(OneDSpectrumMixin, NDDataRef):
             if not isinstance(spectral_axis, SpectralCoord):
                 self._spectral_axis = SpectralCoord(
                     spectral_axis, redshift=redshift,
-                    radial_velocity=radial_velocity, doppler_rest=rest_value,
-                    doppler_convention=velocity_convention)
+                    radial_velocity=radial_velocity, doppler_rest=doppler_rest,
+                    doppler_convention=doppler_convention)
             # If a SpectralCoord object is provided, we assume it doesn't need
             # information from other keywords added
             else:
@@ -170,8 +174,8 @@ class Spectrum1D(OneDSpectrumMixin, NDDataRef):
             self._spectral_axis = SpectralCoord(
                 spec_axis,
                 redshift=redshift, radial_velocity=radial_velocity,
-                doppler_rest=rest_value,
-                doppler_convention=velocity_convention)
+                doppler_rest=doppler_rest,
+                doppler_convention=doppler_convention)
 
         if hasattr(self, 'uncertainty') and self.uncertainty is not None:
             if not flux.shape == self.uncertainty.array.shape:
@@ -230,8 +234,8 @@ class Spectrum1D(OneDSpectrumMixin, NDDataRef):
             mask=deepcopy(self.mask),
             meta=deepcopy(self.meta),
             unit=deepcopy(self.unit),
-            velocity_convention=deepcopy(self.velocity_convention),
-            rest_value=deepcopy(self.rest_value))
+            doppler_convention=deepcopy(self.doppler_convention),
+            doppler_rest=deepcopy(self.doppler_rest))
 
         alt_kwargs.update(kwargs)
 
