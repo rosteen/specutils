@@ -197,7 +197,8 @@ class Spectrum1D(OneDSpectrumMixin, NDDataRef):
 
                 self._spectral_axis = spectral_axis
 
-            wcs = gwcs_from_array(self._spectral_axis)
+            if wcs is None:
+                wcs = gwcs_from_array(self._spectral_axis)
         elif wcs is None:
             # If no spectral axis or wcs information is provided, initialize
             # with an empty gwcs based on the flux.
@@ -214,7 +215,10 @@ class Spectrum1D(OneDSpectrumMixin, NDDataRef):
         if spectral_axis is None:
             # If spectral_axis wasn't provided, set _spectral_axis based on
             # the WCS
-            spec_axis = self.wcs.pixel_to_world(np.arange(self.flux.shape[-1]))
+            try:
+                spec_axis = self.wcs.spectral.pixel_to_world(np.arange(self.flux.shape[-1]))
+            except AttributeError:
+                spec_axis = self.wcs.pixel_to_world(np.arange(self.flux.shape[-1]))
 
             if spec_axis.unit.is_equivalent(u.one):
                 spec_axis = spec_axis * u.pixel
