@@ -1,4 +1,7 @@
 import numpy as np
+from astropy.nddata import (StdDevUncertainty,
+                            VarianceUncertainty,
+                            InverseVariance)
 
 from ..manipulation import (FluxConservingResampler,
                             LinearInterpolatedResampler,
@@ -97,7 +100,13 @@ def _chi_square_for_templates(observed_spectrum, template_spectrum, resample_met
     num = observed_spectrum.flux - num_right
 
     # Denominator
-    denom = observed_spectrum.uncertainty.array * observed_spectrum.flux.unit
+    if isinstance(observed_spectrum.uncertainty, InverseVariance):
+        denom = (1 / np.sqrt(observed_spectrum.uncertainty.array)) * observed_spectrum.flux.unit
+    elif isinstance(observed_spectrum.uncertainty, VarianceUncertainty):
+        denom = np.sqrt(observed_spectrum.uncertainty.array) * observed_spectrum.flux.unit
+    elif isinstance(observed_spectrum.uncertainty, StdDevUncertainty):
+        denom = observed_spectrum.uncertainty.array * observed_spectrum.flux.unit
+
 
     # Get chi square
     result = (num/denom)**2
