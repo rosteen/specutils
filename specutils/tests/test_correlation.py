@@ -27,13 +27,13 @@ def test_autocorrelation():
     # Observed spectrum must have a rest wavelength value set in.
     spec1 = Spectrum1D(spectral_axis=spec_axis,
                        flux=flux1,
-                       uncertainty=StdDevUncertainty(np.random.sample(size), unit='Jy'),
+                       uncertainty=StdDevUncertainty(np.ones(size), unit='Jy'),
                        velocity_convention='optical',
                        rest_value=5020.*u.AA)
 
     spec2 = Spectrum1D(spectral_axis=spec_axis,
                        flux=flux1,
-                       uncertainty=StdDevUncertainty(np.random.sample(size), unit='Jy'))
+                       uncertainty=StdDevUncertainty(np.ones(size), unit='Jy'))
 
     # Get result from correlation
     corr, lag = correlation.template_correlate(spec1, spec2)
@@ -95,13 +95,13 @@ def test_correlation():
     # Observed spectrum must have a rest wavelength value set in.
     spec1 = Spectrum1D(spectral_axis=spec_axis,
                        flux=flux1,
-                       uncertainty=StdDevUncertainty(np.random.sample(size), unit='Jy'),
+                       uncertainty=StdDevUncertainty(np.ones(size), unit='Jy'),
                        velocity_convention='optical',
                        rest_value=rest_value)
 
     spec2 = Spectrum1D(spectral_axis=spec_axis,
                        flux=flux2,
-                       uncertainty=StdDevUncertainty(np.random.sample(size), unit='Jy'))
+                       uncertainty=StdDevUncertainty(np.ones(size), unit='Jy'))
 
     # Get result from correlation
     corr, lag = correlation.template_correlate(spec1, spec2)
@@ -174,13 +174,13 @@ def test_correlation_zero_padding():
     # Uncertainty is arbitrary.
     spec1 = Spectrum1D(spectral_axis=spec_axis_1,
                        flux=flux1,
-                       uncertainty=StdDevUncertainty(np.random.sample(size1), unit='Jy'),
+                       uncertainty=StdDevUncertainty(np.ones(size1), unit='Jy'),
                        velocity_convention='optical',
                        rest_value=rest_value)
 
     spec2 = Spectrum1D(spectral_axis=spec_axis_2,
                        flux=flux2,
-                       uncertainty=StdDevUncertainty(np.random.sample(size2), unit='Jy'))
+                       uncertainty=StdDevUncertainty(np.ones(size2), unit='Jy'))
 
     # Get result from correlation
     corr, lag = correlation.template_correlate(spec1, spec2)
@@ -238,13 +238,13 @@ def test_correlation_random_lines():
     # Uncertainty is arbitrary.
     spec1 = Spectrum1D(spectral_axis=spec_axis_1,
                        flux=flux1,
-                       uncertainty=StdDevUncertainty(np.random.sample(size1), unit='Jy'),
+                       uncertainty=StdDevUncertainty(np.ones(size1), unit='Jy'),
                        velocity_convention='optical',
                        rest_value=rest_value)
 
     spec2 = Spectrum1D(spectral_axis=spec_axis_2,
                        flux=flux2,
-                       uncertainty=StdDevUncertainty(np.random.sample(size2), unit='Jy'))
+                       uncertainty=StdDevUncertainty(np.ones(size2), unit='Jy'))
 
     # Get result from correlation
     corr, lag = correlation.template_correlate(spec1, spec2)
