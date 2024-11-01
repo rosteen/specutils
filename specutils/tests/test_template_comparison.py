@@ -9,24 +9,29 @@ from ..analysis import template_comparison
 from astropy.tests.helper import quantity_allclose
 
 
+np.random.seed(42)
+flux1 = np.random.randn(50)
+unc1 = np.random.sample(50)
+flux2 = np.random.randn(50)
+unc2 = np.random.sample(50)
+flux3 = np.random.randn(50)
+unc3 = np.random.sample(50)
+
 def test_template_match_no_overlap():
     """
     Test template_match when both observed and template spectra have no overlap on the wavelength axis.
     """
-    # Seed np.random so that results are consistent
-    np.random.seed(42)
-
     # Create test spectra
     spec_axis = np.linspace(0, 50, 50) * u.AA
     spec_axis_no_overlap = np.linspace(52, 103, 50) * u.AA
 
     spec = Spectrum1D(spectral_axis=spec_axis,
-                      flux=np.random.randn(50) * u.Jy,
-                      uncertainty=StdDevUncertainty(np.random.sample(50), unit='Jy'))
+                      flux=np.ones(50) * u.Jy,
+                      uncertainty=StdDevUncertainty(np.ones(50), unit='Jy'))
 
     spec1 = Spectrum1D(spectral_axis=spec_axis_no_overlap,
-                       flux=np.random.randn(50) * u.Jy,
-                       uncertainty=StdDevUncertainty(np.random.sample(50), unit='Jy'))
+                       flux=np.ones(50) * u.Jy,
+                       uncertainty=StdDevUncertainty(np.ones(50), unit='Jy'))
 
     # Get result from template_match
     with pytest.warns(UserWarning, match="Template spectrum has no overlap with observed spectrum"):
@@ -41,9 +46,6 @@ def test_template_match_minimal_overlap():
     """
     Test template_match when both observed and template spectra have minimal overlap on the wavelength axis.
     """
-    # Seed np.random so that results are consistent
-    np.random.seed(42)
-
     # Create test spectra
     spec_axis = np.linspace(0, 50, 50) * u.AA
     spec_axis_min_overlap = np.linspace(50, 100, 50) * u.AA
@@ -52,12 +54,12 @@ def test_template_match_minimal_overlap():
     spec_axis_min_overlap[0] = 51.0 * u.AA
 
     spec = Spectrum1D(spectral_axis=spec_axis,
-                      flux=abs(np.random.randn(50)) * u.Jy,
-                      uncertainty=StdDevUncertainty(np.random.sample(50), unit='Jy'))
+                      flux=abs(flux1) * u.Jy,
+                      uncertainty=StdDevUncertainty(unc1, unit='Jy'))
 
     spec1 = Spectrum1D(spectral_axis=spec_axis_min_overlap,
-                       flux=abs(np.random.randn(50)) * u.Jy,
-                       uncertainty=StdDevUncertainty(np.random.sample(50), unit='Jy'))
+                       flux=abs(flux2) * u.Jy,
+                       uncertainty=StdDevUncertainty(unc2, unit='Jy'))
 
     # Get result from template_match
     tm_result = template_comparison.template_match(spec, spec1)
@@ -71,18 +73,15 @@ def test_template_match_spectrum():
     """
     Test template_match when both observed and template spectra have the same wavelength axis.
     """
-    # Seed np.random so that results are consistent
-    np.random.seed(42)
-
     # Create test spectra
     spec_axis = np.linspace(0, 50, 50) * u.AA
     spec = Spectrum1D(spectral_axis=spec_axis,
-                      flux=np.random.randn(50) * u.Jy,
-                      uncertainty=StdDevUncertainty(np.random.sample(50), unit='Jy'))
+                      flux=flux1 * u.Jy,
+                      uncertainty=StdDevUncertainty(unc1, unit='Jy'))
 
     spec1 = Spectrum1D(spectral_axis=spec_axis,
-                       flux=np.random.randn(50) * u.Jy,
-                       uncertainty=StdDevUncertainty(np.random.sample(50), unit='Jy'))
+                       flux=flux2 * u.Jy,
+                       uncertainty=StdDevUncertainty(unc2, unit='Jy'))
 
     # Get result from template_match
     tm_result = template_comparison.template_match(spec, spec1)
@@ -99,18 +98,16 @@ def test_template_match_with_resample():
     """
     Test template_match when both observed and template spectra have different wavelength axis using resampling.
     """
-    np.random.seed(42)
-
     # Create test spectra
     spec_axis1 = np.linspace(0, 50, 50) * u.AA
     spec_axis2 = np.linspace(0, 50, 50) * u.AA
     spec = Spectrum1D(spectral_axis=spec_axis1,
-                      flux=np.random.randn(50) * u.Jy,
-                      uncertainty=StdDevUncertainty(np.random.sample(50), unit='Jy'))
+                      flux=flux1 * u.Jy,
+                      uncertainty=StdDevUncertainty(unc1, unit='Jy'))
 
     spec1 = Spectrum1D(spectral_axis=spec_axis2,
-                       flux=np.random.randn(50) * u.Jy,
-                       uncertainty=StdDevUncertainty(np.random.sample(50), unit='Jy'))
+                       flux=flux2 * u.Jy,
+                       uncertainty=StdDevUncertainty(unc2, unit='Jy'))
 
     # Get result from template_match
     tm_result = template_comparison.template_match(spec, spec1)
@@ -127,21 +124,19 @@ def test_template_match_list():
     """
     Test template_match when template spectra are in a list.
     """
-    np.random.seed(42)
-
     # Create test spectra
     spec_axis1 = np.linspace(0, 50, 50) * u.AA
     spec_axis2 = np.linspace(0, 50, 50) * u.AA
     spec = Spectrum1D(spectral_axis=spec_axis1,
-                      flux=np.random.randn(50) * u.Jy,
-                      uncertainty=StdDevUncertainty(np.random.sample(50), unit='Jy'))
+                      flux=flux1 * u.Jy,
+                      uncertainty=StdDevUncertainty(unc1, unit='Jy'))
 
     spec1 = Spectrum1D(spectral_axis=spec_axis2,
-                       flux=np.random.randn(50) * u.Jy,
-                       uncertainty=StdDevUncertainty(np.random.sample(50), unit='Jy'))
+                       flux=flux2 * u.Jy,
+                       uncertainty=StdDevUncertainty(unc2, unit='Jy'))
     spec2 = Spectrum1D(spectral_axis=spec_axis2,
-                       flux=np.random.randn(50) * u.Jy,
-                       uncertainty=StdDevUncertainty(np.random.sample(50), unit='Jy'))
+                       flux=flux3 * u.Jy,
+                       uncertainty=StdDevUncertainty(unc3, unit='Jy'))
 
     # Combine spectra into list
     template_list = [spec1, spec2]
@@ -161,20 +156,18 @@ def test_template_match_spectrum_collection():
     """
     Test template_match when template spectra are in a SpectrumCollection object.
     """
-    np.random.seed(42)
-
     # Create test spectra
     spec_axis1 = np.linspace(0, 50, 50) * u.AA
     spec_axis2 = np.linspace(0, 50, 50) * u.AA
     spec = Spectrum1D(spectral_axis=spec_axis1,
-                      flux=np.random.randn(50) * u.Jy,
-                      uncertainty=StdDevUncertainty(np.random.sample(50)))
+                      flux=flux1 * u.Jy,
+                      uncertainty=StdDevUncertainty(unc1))
     spec1 = Spectrum1D(spectral_axis=spec_axis2,
-                       flux=np.random.randn(50) * u.Jy,
-                       uncertainty=StdDevUncertainty(np.random.sample(50)))
+                       flux=flux2 * u.Jy,
+                       uncertainty=StdDevUncertainty(unc2))
     spec2 = Spectrum1D(spectral_axis=spec_axis2,
-                       flux=np.random.randn(50) * u.Jy,
-                       uncertainty=StdDevUncertainty(np.random.sample(50)))
+                       flux=flux3 * u.Jy,
+                       uncertainty=StdDevUncertainty(unc3))
 
     # Combine spectra into SpectrumCollection object
     spec_coll = SpectrumCollection.from_spectra([spec1, spec2])
@@ -370,18 +363,15 @@ def test_template_match_variance():
     """
     Test template_match when both observed and template spectra have the same wavelength axis.
     """
-    # Seed np.random so that results are consistent
-    np.random.seed(42)
-
     # Create test spectra
     spec_axis = np.linspace(0, 50, 50) * u.AA
     spec = Spectrum1D(spectral_axis=spec_axis,
-                      flux=np.random.randn(50) * u.Jy,
-                      uncertainty=VarianceUncertainty(np.random.sample(50)**2, unit='Jy2'))
+                      flux=flux1 * u.Jy,
+                      uncertainty=VarianceUncertainty(unc1**2, unit='Jy2'))
 
     spec1 = Spectrum1D(spectral_axis=spec_axis,
-                       flux=np.random.randn(50) * u.Jy,
-                       uncertainty=VarianceUncertainty(np.random.sample(50)**2, unit='Jy2'))
+                       flux=flux2 * u.Jy,
+                       uncertainty=VarianceUncertainty(unc2**2, unit='Jy2'))
 
     # Get result from template_match
     tm_result = template_comparison.template_match(spec, spec1)
@@ -398,18 +388,15 @@ def test_template_match_inverse_variance():
     """
     Test template_match when both observed and template spectra have the same wavelength axis.
     """
-    # Seed np.random so that results are consistent
-    np.random.seed(42)
-
     # Create test spectra
     spec_axis = np.linspace(0, 50, 50) * u.AA
     spec = Spectrum1D(spectral_axis=spec_axis,
-                      flux=np.random.randn(50) * u.Jy,
-                      uncertainty=InverseVariance(1/np.random.sample(50)**2, unit='1 / Jy2'))
+                      flux=flux1 * u.Jy,
+                      uncertainty=InverseVariance(1/unc1**2, unit='1 / Jy2'))
 
     spec1 = Spectrum1D(spectral_axis=spec_axis,
-                       flux=np.random.randn(50) * u.Jy,
-                       uncertainty=InverseVariance(1/np.random.sample(50)**2, unit='1 / Jy2'))
+                       flux=flux2 * u.Jy,
+                       uncertainty=InverseVariance(1/unc2**2, unit='1 / Jy2'))
 
     # Get result from template_match
     tm_result = template_comparison.template_match(spec, spec1)
