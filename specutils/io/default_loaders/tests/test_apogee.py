@@ -19,7 +19,7 @@ from specutils.io.default_loaders.apogee import apStar_loader, apVisit_loader, a
 )
 def test_apStar_loader(tmp_path, url):
     with set_temp_cache(path=str(tmp_path)):
-        filename = download_file(url, cache=True)
+        filename = download_file(url, cache=True, timeout=60)
         spectrum = apStar_loader(filename)  # noqa
 
 
@@ -35,7 +35,7 @@ def test_apStar_loader(tmp_path, url):
 )
 def test_apVisit_loader(tmp_path, url):
     with set_temp_cache(path=str(tmp_path)):
-        filename = download_file(url, cache=True)
+        filename = download_file(url, cache=True, timeout=60)
         spectrum = apVisit_loader(filename)  # noqa
 
 
@@ -50,5 +50,5 @@ def test_apVisit_loader(tmp_path, url):
 )
 def test_aspcapStar_loader(tmp_path, url):
     with set_temp_cache(path=str(tmp_path)):
-        filename = download_file(url, cache=True)
+        filename = download_file(url, cache=True, timeout=60)
         spectrum = aspcapStar_loader(filename)  # noqa
