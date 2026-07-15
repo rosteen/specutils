@@ -2,6 +2,7 @@
 py:class astropy.nddata.mixins.ndio.NDIOMixin
 py:class astropy.nddata.mixins.ndslicing.NDSlicingMixin
 py:class astropy.nddata.mixins.ndarithmetic.NDArithmeticMixin
+py:class astropy.units.QuantityInfoBase
 py:obj NDData
 py:obj NDUncertainty
 
