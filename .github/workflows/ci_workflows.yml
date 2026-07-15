@@ -30,21 +30,26 @@ jobs:
             python: 3.x
             toxenv: codestyle
 
-          - name: Python 3.11 with remote data and coverage
+          - name: Python 3.14 with remote data and coverage
             os: ubuntu-latest
-            python: '3.11'
-            toxenv: py311-test-cov
+            python: '3.14'
+            toxenv: py313-test-cov
             toxargs: -v
             toxposargs: --remote-data=any
 
-          - name: Python 3.12 (Windows)
-            os: windows-latest
-            python: '3.12'
-            toxenv: py312-test
-
           - name: Python 3.11 (MacOS)
-            os: macos-latest
+            os: ubuntu-latest
             python: '3.11'
+            toxenv: py311-test
+
+          - name: Python 3.13 (Windows)
+            os: windows-latest
+            python: '3.13'
+            toxenv: py313-test
+
+          - name: Python 3.12 (MacOS)
+            os: macos-latest
+            python: '3.12'
             toxenv: py311-test
 
           - name: Python 3.13 (MacOS)
@@ -111,17 +116,17 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - name: (Allowed Failure) Python 3.12 with remote data and dev version of key dependencies
+          - name: (Allowed Failure) Python 3.14 with remote data and dev version of key dependencies
             os: ubuntu-latest
-            python: '3.12'
-            toxenv: py312-test-devdeps
+            python: '3.14'
+            toxenv: py314-test-devdeps
             toxposargs: --remote-data=any
 
           # doctest failure due to different no. of significant digits on arm64 (#1146)
-          - name: Python 3.12 (macOS)
+          - name: Python 3.13 (macOS)
             os: macos-latest
-            python: '3.12'
-            toxenv: py312-test
+            python: '3.13'
+            toxenv: py313-test
 
     steps:
     - name: Checkout code
