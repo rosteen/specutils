@@ -2,7 +2,6 @@
 py:class astropy.nddata.mixins.ndio.NDIOMixin
 py:class astropy.nddata.mixins.ndslicing.NDSlicingMixin
 py:class astropy.nddata.mixins.ndarithmetic.NDArithmeticMixin
-py:class astropy.units.QuantityInfoBase
 py:obj NDData
 py:obj NDUncertainty
 
@@ -10,6 +9,7 @@ py:obj NDUncertainty
 py:obj astropy.coordinates.SpectralQuantity
 py:class UnitBase
 py:class ConfigItem
+py:class QuantityInfoBase
 
 # Classes in the SpectralCoord/SpectralQuantity methods for which we can't
 # control the API links.
