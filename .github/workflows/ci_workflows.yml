@@ -33,7 +33,7 @@ jobs:
           - name: Python 3.14 with remote data and coverage
             os: ubuntu-latest
             python: '3.14'
-            toxenv: py313-test-cov
+            toxenv: py314-test-cov
             toxargs: -v
             toxposargs: --remote-data=any
 
