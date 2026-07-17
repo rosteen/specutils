@@ -37,7 +37,7 @@ jobs:
             toxargs: -v
             toxposargs: --remote-data=any
 
-          - name: Python 3.11 (MacOS)
+          - name: Python 3.11 (Linux)
             os: ubuntu-latest
             python: '3.11'
             toxenv: py311-test
@@ -56,6 +56,11 @@ jobs:
             os: macos-latest
             python: '3.13'
             toxenv: py313-test
+
+          - name: python 3.14 (Windows)
+            os: windows-latest
+            python: '3.14'
+            toxenv: py314-test
 
           - name: Python 3.11 with oldest supported version of key dependencies
             os: ubuntu-latest
@@ -121,12 +126,6 @@ jobs:
             python: '3.14'
             toxenv: py314-test-devdeps
             toxposargs: --remote-data=any
-
-          # doctest failure due to different no. of significant digits on arm64 (#1146)
-          - name: Python 3.13 (macOS)
-            os: macos-latest
-            python: '3.13'
-            toxenv: py313-test
 
     steps:
     - name: Checkout code
